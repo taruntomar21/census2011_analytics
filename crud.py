@@ -5,7 +5,6 @@ try:
         host="127.0.0.1",
         user="root",
         password="Tarun@sqlserver@55",
-        port=3306,
         database="campusx"
     )
 
@@ -46,18 +45,24 @@ conn.commit()
 
 # search/retrieve ---------------------------
 
-pop = []
-mycursor.execute("""WITH lit AS (SELECT State, SUM(Male) AS "male" FROM census
-                                GROUP BY State)
-                    SELECT male FROM lit
-                    WHERE State = "Kerala"
-""")
-data = mycursor.fetchall()
-print(data)
+# pop = []
+# mycursor.execute(f"SELECT SUM(Male_Workers) FROM census WHERE State = %s", (State,))
+# result = mycursor.fetchone()
+# print(result)
 
-for i in data:
-    pop.append(i[0])
 
-print(pop[0])
+def fetch_let_long(state):
+    query = f"SELECT Latitude, Longitude FROM india WHERE State = %s"
+    mycursor.execute(query, (state,))
+    result = mycursor.fetchall()
+    print(result)
+
+
+fetch_let_long("Goa")
+
+# for i in data:
+#     pop.append(i[0])
+#
+# print(pop[0])
 
 
