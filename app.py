@@ -789,6 +789,72 @@ if select == "District":
                 st.code('Litracy Rate - {lit}'.format(lit=lit))
 
             # ----------------------------------------------------------------------
+
+            # DISTRICT MAP ----------------
+            st.subheader(f" District Map — {select_state}")
+
+            dist_map_df = db.fetch_dist_lat_long(select_state)
+
+            # highlight selected district
+            dist_map_df['is_selected'] = dist_map_df['District'].apply(
+                lambda x: 'Selected' if x == select_dist else 'Other Districts'
+            )
+            dist_map_df['marker_size'] = dist_map_df['District'].apply(
+                lambda x: 20 if x == select_dist else 8
+            )
+            dist_map_df['hover'] = dist_map_df.apply(
+                lambda row: f"<b>{row['District']}</b><br>"
+                            f"Population: {row['Population']:,}<br>"
+                            f"Literacy Rate: {row['Literacy_Rate']}%",
+                axis=1
+            )
+
+            fig_map = px.scatter_mapbox(
+                dist_map_df,
+                lat="Latitude",
+                lon="Longitude",
+                size="marker_size",
+                color="is_selected",
+                color_discrete_map={
+                    'Selected': '#FF6B6B',  # red for selected district
+                    'Other Districts': '#7c83fd'  # blue for others
+                },
+                hover_name="District",
+                hover_data={
+                    'Population': ':,',
+                    'Literacy_Rate': True,
+                    'marker_size': False,
+                    'is_selected': False
+                },
+                zoom=5,
+                size_max=20,
+                mapbox_style="open-street-map",
+                height=500,
+            )
+
+            # center map on selected district -------
+            selected_row = dist_map_df[dist_map_df['District'] == select_dist].iloc[0]
+            fig_map.update_layout(
+                mapbox=dict(
+                    center=dict(
+                        lat=selected_row['Latitude'],
+                        lon=selected_row['Longitude']
+                    ),
+                    zoom=6
+                ),
+                margin={"r": 0, "t": 0, "l": 0, "b": 0},
+                legend=dict(
+                    title="Districts",
+                    bgcolor="#1a1a2e",
+                    font=dict(color="white")
+                )
+            )
+
+            st.plotly_chart(fig_map, use_container_width=True)
+            st.divider()
+
+            # ---------------------------------------
+
             col1, col2 = st.columns(2)
             with col1:
                 male = db.fetch_dist_data('Male', select_dist)

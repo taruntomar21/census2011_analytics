@@ -115,3 +115,13 @@ class DataBase:
         rows = self.mycursor.fetchall()
         df = pd.DataFrame(rows, columns=['District', 'Latitude', 'Longitude'])
         return df
+
+    def fetch_dist_lat_long(self, state):
+        query = """
+            SELECT District, Latitude, Longitude, Population, litracy_rate FROM india 
+            WHERE State = %s
+        """
+        self.mycursor.execute(query, (state,))
+        rows = self.mycursor.fetchall()
+        df = pd.DataFrame(rows, columns=['District', 'Latitude', 'Longitude', 'Population', 'Literacy_Rate'])
+        return df
